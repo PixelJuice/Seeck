@@ -1,0 +1,20 @@
+{
+  "name": "dev.jonasjohansson.pathfinding",
+  "version": "1.0.0",
+  "displayName": "Path Finding",
+  "description": "Simple path finding system for ECS with Burst",
+  "unity": "2019.4",
+  "keywords": [
+    "Pathfinding",
+    "Ecs",
+    "Burst"
+  ],
+  "author": {
+    "name": "Jonas Johansson",
+    "email": "pxljuc@gmail.com",
+    "url": "https://www.jonasjohansson.dev"
+  },
+  "dependencies": {
+    "com.unity.entities": "0.1.1-preview"
+  }
+}
