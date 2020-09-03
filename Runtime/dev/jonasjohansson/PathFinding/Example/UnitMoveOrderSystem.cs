@@ -8,7 +8,7 @@ using Unity.Transforms;
 using UnityEngine;
 namespace dev.jonasjohansson
 {
-    [DisableAutoCreation]
+    //[DisableAutoCreation]
     [UpdateBefore(typeof(PathFindingSystem))]
     public class UnitMoveOrderSystem : JobComponentSystem
     {
@@ -30,10 +30,11 @@ namespace dev.jonasjohansson
         {
 
             Entity target = grid[UnityEngine.Random.Range(0, grid.Length - 1)];
+            float timeSeed = Time.DeltaTime;
             JobHandle job = new GiveOrderJob()
             {
                 ecb = m_EndSimulationEcbSystem.CreateCommandBuffer().ToConcurrent(),
-                Time = Time.deltaTime,
+                Seed = timeSeed,
                 TargetPos = target,
                 grid = grid,
                 size = size,
@@ -50,7 +51,7 @@ namespace dev.jonasjohansson
             [ReadOnly]
             public Entity TargetPos;
             [ReadOnly]
-            public float Time;
+            public float Seed;
             [ReadOnly]
             public NativeArray<Entity> grid;
             [ReadOnly]
@@ -61,7 +62,7 @@ namespace dev.jonasjohansson
             public EntityCommandBuffer.Concurrent ecb;
             public void Execute(Entity entity, int index, ref PathRequest c0, ref Translation c1)
             {
-                var seed = math.max(1, (uint)(random(new float2((entity.Index + 10) * Time, (index + 10) * Time * 2))));
+                var seed = math.max(1, (uint)(random(new float2((entity.Index + 10) * Seed, (index + 10) * Seed * 2))));
                 var rnd = new Unity.Mathematics.Random(seed);
                 c0.Processed = false;
                 int startIndex = CalculateIndex((int)math.round(c1.Value.x), (int)math.round(c1.Value.z), size.x);

@@ -1,7 +1,4 @@
-﻿using dev.jonasjohansson;
-using dev.jonasjohansson.PathFinding;
-using System.Collections;
-using System.Collections.Generic;
+﻿using dev.jonasjohansson.PathFinding;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
@@ -23,11 +20,12 @@ namespace dev.jonasjohansson
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
+            var delta = Time.DeltaTime;
             JobHandle job = new MoveJob()
             {
                 ecb = m_EndSimulationEcbSystem.CreateCommandBuffer().ToConcurrent(),
                 WaypointsBuffer = GetBufferFromEntity<Waypoints>(),
-                DeltaTime = Time.deltaTime,
+                DeltaTime = delta,
                 GridPositions = GetComponentDataFromEntity<GridPosition>(true),
                 Gridheights = GetComponentDataFromEntity<Height>(true),
 

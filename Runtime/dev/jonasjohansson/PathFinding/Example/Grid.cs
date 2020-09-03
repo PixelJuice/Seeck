@@ -17,8 +17,8 @@ namespace dev.jonasjohansson
         private void Start()
         {
             m_squares = new NativeArray<Entity>(m_gridWorldSize.x * m_gridWorldSize.y,Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
-            EntityManager entityManager = World.Active.EntityManager;
-            EntityArchetype archType = World.Active.EntityManager.CreateArchetype(ComponentType.ReadWrite<GridIndex>(), ComponentType.ReadWrite<Neighbours>(), ComponentType.ReadWrite<GridPosition>(), ComponentType.ReadWrite<NodeCost>(), ComponentType.ReadWrite<Height>());
+            EntityManager entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+            var archType = entityManager.CreateArchetype(ComponentType.ReadWrite<GridIndex>(), ComponentType.ReadWrite<Neighbours>(), ComponentType.ReadWrite<GridPosition>(), ComponentType.ReadWrite<NodeCost>(), ComponentType.ReadWrite<Height>());
 
             for (int x = 0; x < m_gridWorldSize.x; x++)
             {
@@ -60,8 +60,8 @@ namespace dev.jonasjohansson
                 }
             }
             
-            World.Active.GetExistingSystem<UnitMoveOrderSystem>().grid = m_squares;
-            World.Active.GetExistingSystem<UnitMoveOrderSystem>().size = m_gridWorldSize;
+            World.DefaultGameObjectInjectionWorld.GetExistingSystem<UnitMoveOrderSystem>().grid = m_squares;
+            World.DefaultGameObjectInjectionWorld.GetExistingSystem<UnitMoveOrderSystem>().size = m_gridWorldSize;
         }
 
         private int CalculateIndex(int p_x, int p_y, int p_gridWidth)
