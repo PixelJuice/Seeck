@@ -8,7 +8,7 @@ using Unity.Transforms;
 using UnityEngine;
 namespace dev.jonasjohansson
 {
-    //[DisableAutoCreation]
+    [DisableAutoCreation]
     public class MoveSystem : JobComponentSystem
     {
         EndSimulationEntityCommandBufferSystem m_EndSimulationEcbSystem;

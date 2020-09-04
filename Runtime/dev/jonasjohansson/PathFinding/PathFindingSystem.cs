@@ -10,13 +10,13 @@ using UnityEngine;
 
 namespace dev.jonasjohansson.PathFinding
 {
-    public interface HeuristicCostCalculator
+    /*public interface HeuristicCostCalculator<T>
     {
-        int CalculateHCost(int2 p_aPostiontion, int2 p_bPosition);
+        int CalculateHCost(T p_aPostiontion, T p_bPosition);
         int CalculateFCost(int p_gCost, int p_hCost);
     }
 
-    public struct GridBasedManhattanHeuristicCalculator : HeuristicCostCalculator
+    public struct GridBasedManhattanHeuristicCalculator : HeuristicCostCalculator<int2>
     {
         static readonly int STRAIGHT_MOVE_COST = 10;
         static readonly int DIAGONAL_MOVE_COST = 14;
@@ -33,8 +33,10 @@ namespace dev.jonasjohansson.PathFinding
         {
             return p_gCost + p_hCost;
         }
-    }
+    }*/
 
+    
+    [DisableAutoCreation]
     public class PathFindingSystem : JobComponentSystem
     {
         protected override void OnCreate()
@@ -50,18 +52,19 @@ namespace dev.jonasjohansson.PathFinding
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
 
-            return new Search<GridBasedManhattanHeuristicCalculator>()
+            /*return new Search<GridBasedManhattanHeuristicCalculator>()
             {
                 waypointsBuffers = GetBufferFromEntity<Waypoints>(),
                 Neighbours = GetBufferFromEntity<Neighbours>(true),
                 GridPositions = GetComponentDataFromEntity<GridPosition>(true),
                 NodeCosts = GetComponentDataFromEntity<NodeCost>(true),
-            }.Schedule(this, inputDeps);
+            }.Schedule(this, inputDeps);*/
+            return inputDeps;
         }
 
         [BurstCompile]
         [RequireComponentTag(typeof(Waypoints))]
-        struct Search<HeuristicCalculator> : IJobForEachWithEntity<PathRequest, PathInfo> where HeuristicCalculator : struct, HeuristicCostCalculator
+        struct Search2<HeuristicCalculator> : IJobForEachWithEntity<PathRequest, PathInfo> where HeuristicCalculator : struct, HeuristicCostCalculator<int2>
         {
             [NativeDisableParallelForRestriction]
             [WriteOnly]
@@ -179,21 +182,21 @@ namespace dev.jonasjohansson.PathFinding
                     p_nodes.TryGetValue(currentNode.Parent, out currentNode);
                 }
             }
-            /*void SimplifyPath(List<PathNode> path, DynamicBuffer<Waypoints> p_buffer)
-            {
-                List<float3> waypoints = new List<float3>();
-                int2 directionOld = int2.zero;
+        /*void SimplifyPath(List<PathNode> path, DynamicBuffer<Waypoints> p_buffer)
+        {
+            List<float3> waypoints = new List<float3>();
+            int2 directionOld = int2.zero;
 
-                for (int i = 1; i < path.Count; i++)
+            for (int i = 1; i < path.Count; i++)
+            {
+                int2 directionNew = new int2(path[i - 1].x - path[i].x, path[i - 1].y - path[i].y);
+                if (directionNew.x != directionOld.x && directionNew.y != directionOld.y)
                 {
-                    int2 directionNew = new int2(path[i - 1].x - path[i].x, path[i - 1].y - path[i].y);
-                    if (directionNew.x != directionOld.x && directionNew.y != directionOld.y)
-                    {
-                        p_buffer.Add(new Waypoints() { Position = new int2(path[i].x, path[i].y) });
-                    }
-                    directionOld = directionNew;
+                    p_buffer.Add(new Waypoints() { Position = new int2(path[i].x, path[i].y) });
                 }
-            }*/
-        }
+                directionOld = directionNew;
+            }
+        }*/
+    }
     }
 }

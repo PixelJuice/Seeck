@@ -8,7 +8,7 @@ using Unity.Transforms;
 using UnityEngine;
 namespace dev.jonasjohansson
 {
-    //[DisableAutoCreation]
+    [DisableAutoCreation]
     [UpdateBefore(typeof(PathFindingSystem))]
     public class UnitMoveOrderSystem : JobComponentSystem
     {
