@@ -1,11 +1,9 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using Unity.Entities;
-using UnityEngine;
+﻿using Unity.Entities;
 namespace dev.jonasjohansson.PathFinding
 {
     public struct PathInfo : IComponentData
     {
-        public int waypoint;
+        public int Waypoint;
+        public bool EndReached;
     }
 }

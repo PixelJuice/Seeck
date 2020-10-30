@@ -9,7 +9,7 @@ namespace dev.jonasjohansson.PathFinding
     [NativeContainerSupportsDeallocateOnJobCompletion]
     [NativeContainerSupportsMinMaxWriteRestriction]
     [NativeContainer]
-    public unsafe struct NativeMinHeapForPathNodes : IDisposable
+    public unsafe struct NativeMinHeapForGraphNodes : IDisposable
     {
         [NativeDisableUnsafePtrRestriction] private void* m_Buffer;
         private int m_capacity;
@@ -24,16 +24,16 @@ namespace dev.jonasjohansson.PathFinding
         private int m_MinIndex;
         private int m_MaxIndex;
 
-        public NativeMinHeapForPathNodes(int capacity, Allocator allocator, NativeArrayOptions options = NativeArrayOptions.ClearMemory)
+        public NativeMinHeapForGraphNodes(int capacity, Allocator allocator, NativeArrayOptions options = NativeArrayOptions.ClearMemory)
         {
             Allocate(capacity, allocator, out this);
             if ((options & NativeArrayOptions.ClearMemory) == NativeArrayOptions.ClearMemory)
-                UnsafeUtility.MemClear(m_Buffer, (long) m_capacity * UnsafeUtility.SizeOf<MinHeapPathNode>());
+                UnsafeUtility.MemClear(m_Buffer, (long)m_capacity * UnsafeUtility.SizeOf<MinHeapGraphNode>());
         }
 
-        private static void Allocate(int capacity, Allocator allocator, out NativeMinHeapForPathNodes nativeMinHeap)
+        private static void Allocate(int capacity, Allocator allocator, out NativeMinHeapForGraphNodes nativeMinHeap)
         {
-            var size = (long)UnsafeUtility.SizeOf<MinHeapPathNode>() * capacity;
+            var size = (long)UnsafeUtility.SizeOf<MinHeapGraphNode>() * capacity;
             if (allocator <= Allocator.None)
                 throw new ArgumentException("Allocator must be Temp, TempJob or Persistent", nameof(allocator));
             if (capacity < 0)
@@ -42,7 +42,7 @@ namespace dev.jonasjohansson.PathFinding
                 throw new ArgumentOutOfRangeException(nameof(capacity),
                     $"Length * sizeof(T) cannot exceed {(object)int.MaxValue} bytes");
 
-            nativeMinHeap.m_Buffer = UnsafeUtility.Malloc(size, UnsafeUtility.AlignOf<MinHeapPathNode>(), allocator);
+            nativeMinHeap.m_Buffer = UnsafeUtility.Malloc(size, UnsafeUtility.AlignOf<MinHeapGraphNode>(), allocator);
             nativeMinHeap.m_capacity = capacity;
             nativeMinHeap.m_AllocatorLabel = allocator;
             nativeMinHeap.m_MinIndex = 0;
@@ -65,7 +65,7 @@ namespace dev.jonasjohansson.PathFinding
             return m_head >= 0;
         }
 
-        public void Push(MinHeapPathNode node)
+        public void Push(MinHeapGraphNode node)
         {
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
             if (m_length == m_capacity)
@@ -77,7 +77,7 @@ namespace dev.jonasjohansson.PathFinding
             {
                 m_head = m_length;
             }
-            else if (node.Priority < this[m_head].Priority)
+            else if (node.fCost < this[m_head].fCost)
             {
                 node.Next = m_head;
                 m_head = m_length;
@@ -87,7 +87,7 @@ namespace dev.jonasjohansson.PathFinding
                 var currentPtr = m_head;
                 var current = this[currentPtr];
 
-                while (current.Next >= 0 && this[current.Next].Priority <= node.Priority)
+                while (current.Next >= 0 && this[current.Next].fCost <= node.fCost)
                 {
                     currentPtr = current.Next;
                     current = this[current.Next];
@@ -103,17 +103,17 @@ namespace dev.jonasjohansson.PathFinding
             m_length += 1;
         }
 
-        public int Pop()
+        public MinHeapGraphNode Pop()
         {
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
             AtomicSafetyHandle.CheckWriteAndThrow(m_Safety);
 #endif
             var result = m_head;
             m_head = this[m_head].Next;
-            return result;
+            return this[result];
         }
 
-        public MinHeapPathNode this[int index]
+        public MinHeapGraphNode this[int index]
         {
             get
             {
@@ -123,7 +123,7 @@ namespace dev.jonasjohansson.PathFinding
                 AtomicSafetyHandle.CheckReadAndThrow(m_Safety);
 #endif
 
-                return UnsafeUtility.ReadArrayElement<MinHeapPathNode>(m_Buffer, index);
+                return UnsafeUtility.ReadArrayElement<MinHeapGraphNode>(m_Buffer, index);
             }
         }
 
@@ -157,24 +157,20 @@ namespace dev.jonasjohansson.PathFinding
 #endif
     }
 
-    public struct MinHeapPathNode
+    public struct MinHeapGraphNode
     {
-        public MinHeapPathNode(Entity p_entity, float p_priority)
+        public MinHeapGraphNode(Entity p_entity, int p_fCost, int p_hCost, int p_gCost)
         {
-            Priority = p_priority;
             Entity = p_entity;
             Next = -1;
-            gCost = int.MaxValue;
-            hCost = int.MaxValue;
-            fCost = int.MaxValue;
-            Parent = Entity.Null;
+            hCost = p_hCost;
+            fCost = p_fCost;
+            gCost = p_gCost;
         }
-        public float Priority;
         public Entity Entity;
-        public Entity Parent;
         public int Next;
-        public int gCost;
         public int hCost;
         public int fCost;
+        public int gCost;
     }
 }
